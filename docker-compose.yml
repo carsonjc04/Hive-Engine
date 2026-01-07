@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: hive_db
+    ports:
+      - "5432:5432"  # This forces the host port to be 5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=hive_core
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3.13-management  # This version HAS the UI
+    container_name: hive_mq
+    ports:
+      - "5672:5672"    # App Port
+      - "15672:15672"  # UI Port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: always
+
+volumes:
+  postgres_data:

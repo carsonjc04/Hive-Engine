@@ -1,4 +1,4 @@
-package com.carsonjc04.hive_engine;
+package com.carsonchristensen.hive;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;

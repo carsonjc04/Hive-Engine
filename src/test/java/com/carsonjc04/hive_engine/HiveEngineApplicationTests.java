@@ -1,4 +1,4 @@
-package com.carsonjc04.hive_engine;
+package com.carsonchristensen.hive;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
