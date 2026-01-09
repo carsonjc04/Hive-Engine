@@ -1,5 +1,6 @@
 package com.carsonchristensen.hive.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,7 @@ public class AppAccess {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
+    @JsonIgnoreProperties({"devices", "appAccesses"})
     private Employee employee;
 }
 
