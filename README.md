@@ -61,7 +61,7 @@ sequenceDiagram
 
 ### Prerequisites
 
-- Java 21+
+- **Java 21** (required - Java 25+ is not compatible with Lombok)
 - Docker Desktop
 
 ### Installation
@@ -72,14 +72,45 @@ sequenceDiagram
    cd hive-engine
    ```
 
-2. **Start Infrastructure (Postgres & RabbitMQ)**
+2. **Setup Java 21** (if not already configured)
+   
+   **macOS:**
+   ```bash
+   # Check if Java 21 is installed
+   /usr/libexec/java_home -V
+   
+   # If not installed:
+   brew install openjdk@21
+   
+   # Set JAVA_HOME for this session
+   export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+   ```
+   
+   **Linux/Other:**
+   ```bash
+   # Install Java 21 and set JAVA_HOME
+   export JAVA_HOME=/path/to/java21
+   ```
+   
+   **Or run the setup script:**
+   ```bash
+   ./setup.sh
+   ```
+
+3. **Start Infrastructure (Postgres & RabbitMQ)**
    ```bash
    docker-compose up -d
    ```
 
-3. **Run the Application**
+4. **Run the Application**
    ```bash
-   ./mvnw spring-boot:run
+   # Make sure JAVA_HOME is set to Java 21, then:
+   ./mvnw clean spring-boot:run
+   ```
+   
+   **Or use the helper script (automatically sets JAVA_HOME):**
+   ```bash
+   ./run.sh
    ```
 
 ## Manual Testing
@@ -117,3 +148,21 @@ This API call triggers the RabbitMQ event, which automatically locks the device 
 ```bash
 curl -X POST http://localhost:8080/api/employees/{id}/terminate
 ```
+
+## Testing & Verification
+
+### Running Commands
+
+The following example demonstrates the complete workflow: creating an employee, provisioning resources, and triggering termination.
+
+![Testing Commands](images/testing-commands.png)
+
+*Complete workflow showing device assignment, app access provisioning, and employee termination via curl commands.*
+
+### Event-Driven Execution Logs
+
+When an employee is terminated, the system automatically processes the event asynchronously. The logs show both services executing in parallel:
+
+![Termination Logs](images/termination-logs.png)
+
+*Application logs showing the parallel execution of device locking and app access revocation services triggered by the termination event.*
