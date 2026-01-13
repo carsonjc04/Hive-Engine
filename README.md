@@ -1,4 +1,4 @@
-# Hive Engine
+# <img src="images/honeycomb-icon.svg" alt="Honeycomb" width="32" height="32"> Hive Engine
 
 Hi Programmers!
 
