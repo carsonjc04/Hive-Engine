@@ -24,7 +24,10 @@ public class AppAccess {
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean isActive = true;
+    private String status = "ACTIVE";
+
+    @Column(nullable = false)
+    private String role;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
