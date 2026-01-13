@@ -155,7 +155,8 @@ curl -X POST http://localhost:8080/api/employees/{id}/terminate
 
 The following example demonstrates the complete workflow: creating an employee, provisioning resources, and triggering termination.
 
-![Testing Commands](images/testing-commands.png)
+<img width="936" height="318" alt="Attached_image" src="https://github.com/user-attachments/assets/1062f24d-e493-4d4e-9b3e-591e27096eb8" />
+
 
 *Complete workflow showing device assignment, app access provisioning, and employee termination via curl commands.*
 
@@ -163,6 +164,7 @@ The following example demonstrates the complete workflow: creating an employee, 
 
 When an employee is terminated, the system automatically processes the event asynchronously. The logs show both services executing in parallel:
 
-![Termination Logs](images/termination-logs.png)
+<img width="949" height="572" alt="Attached_image" src="https://github.com/user-attachments/assets/40d9a30b-adeb-4409-8026-c797375a9c6d" />
+
 
 *Application logs showing the parallel execution of device locking and app access revocation services triggered by the termination event.*
