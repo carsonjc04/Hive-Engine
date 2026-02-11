@@ -29,7 +29,7 @@ public class AppAccess {
     @Column(nullable = false)
     private String role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id")
     @JsonIgnoreProperties({"devices", "appAccesses"})
     private Employee employee;

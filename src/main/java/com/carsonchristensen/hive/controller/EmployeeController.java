@@ -29,6 +29,14 @@ public class EmployeeController {
         return employeeService.getAllEmployees();
     }
 
+    // GET /api/employees/{id} - Get single employee
+    @GetMapping("/{id}")
+    public ResponseEntity<Employee> getEmployee(@PathVariable Long id) {
+        return employeeService.getEmployeeById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     // POST /api/employees - Hire someone (Body: JSON)
     @PostMapping
     public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {

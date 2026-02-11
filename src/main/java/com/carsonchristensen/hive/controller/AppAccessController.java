@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,6 +23,18 @@ public class AppAccessController {
 
     public AppAccessController(AppAccessService appAccessService) {
         this.appAccessService = appAccessService;
+    }
+
+    // GET /api/app-access - All app accesses
+    @GetMapping
+    public List<AppAccess> getAllAppAccesses() {
+        return appAccessService.getAllAppAccesses();
+    }
+
+    // GET /api/app-access/employee/{employeeId} - Apps for an employee
+    @GetMapping("/employee/{employeeId}")
+    public List<AppAccess> getAppsByEmployee(@PathVariable Long employeeId) {
+        return appAccessService.getAppsByEmployee(employeeId);
     }
 
     @PostMapping

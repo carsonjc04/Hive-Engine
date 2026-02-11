@@ -19,6 +19,14 @@ public class AppAccessService {
     private final AppAccessRepository appAccessRepository;
     private final EmployeeRepository employeeRepository;
 
+    public List<AppAccess> getAllAppAccesses() {
+        return appAccessRepository.findAll();
+    }
+
+    public List<AppAccess> getAppsByEmployee(Long employeeId) {
+        return appAccessRepository.findByEmployeeId(employeeId);
+    }
+
     @Transactional
     public AppAccess assignApp(Long employeeId, String appName, String role) {
         // 1. Find the employee
@@ -52,4 +60,5 @@ public class AppAccessService {
         log.info("Revoked {} app accesses for employee {}", appAccesses.size(), employeeId);
     }
 }
+
 

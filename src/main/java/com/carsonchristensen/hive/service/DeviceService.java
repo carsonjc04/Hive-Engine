@@ -20,6 +20,14 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
     private final EmployeeRepository employeeRepository;
 
+    public List<Device> getAllDevices() {
+        return deviceRepository.findAll();
+    }
+
+    public List<Device> getDevicesByEmployee(Long employeeId) {
+        return deviceRepository.findByEmployeeId(employeeId);
+    }
+
     @Transactional
     public Device assignDevice(Long employeeId, String deviceType, String serialNumber) {
         // 1. Find the employee

@@ -31,7 +31,7 @@ public class Device {
     @Builder.Default
     private Boolean isLocked = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id")
     @JsonIgnoreProperties({"devices", "appAccesses"})
     private Employee employee;

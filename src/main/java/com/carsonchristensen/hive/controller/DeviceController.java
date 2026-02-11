@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,6 +23,18 @@ public class DeviceController {
 
     public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    // GET /api/devices - All devices
+    @GetMapping
+    public List<Device> getAllDevices() {
+        return deviceService.getAllDevices();
+    }
+
+    // GET /api/devices/employee/{employeeId} - Devices for an employee
+    @GetMapping("/employee/{employeeId}")
+    public List<Device> getDevicesByEmployee(@PathVariable Long employeeId) {
+        return deviceService.getDevicesByEmployee(employeeId);
     }
 
     @PostMapping
