@@ -4,6 +4,10 @@ An event-driven employee offboarding platform. When HR terminates an employee, t
 
 Includes a React dashboard with HR and Employee views. HR manages people, devices, and app access. Employees see their own credentials and access status. Termination effects propagate to the Employee view in real time.
 
+<img width="1434" height="393" alt="Screenshot 2026-02-10 at 8 18 22 pm" src="https://github.com/user-attachments/assets/365740bf-be88-4ff3-b9c8-c42eab39a310" />
+<img width="1440" height="464" alt="Screenshot 2026-02-10 at 8 18 45 pm" src="https://github.com/user-attachments/assets/8551a8ea-fa39-41b5-bcf0-0df02cf854dc" />
+
+
 ## Architecture
 
 ```mermaid
