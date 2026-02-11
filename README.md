@@ -1,170 +1,161 @@
-# <img src="images/honeycomb-icon.svg" alt="Honeycomb" width="32" height="32"> Hive Engine
+# <img src="images/honeycomb-icon.svg" alt="" width="32" height="32"> Hive Engine
 
-Hi Programmers!
+An event-driven employee offboarding platform. When HR terminates an employee, the system automatically locks their devices and revokes application access -- all through asynchronous message processing via RabbitMQ.
 
-This is my Hive Engine, a reactive backend system designed to automate IT and HR offboarding workflows. Built with an Event-Driven Architecture, it decouples the "Trigger" (Employee Termination) from the "Reactions" (Device Locking, App Access Revocation), ensuring scalability and resilience. Having these two processes separate improves security concerns and safe removal of former employee's access rights to secure company data.
+Includes a React dashboard with HR and Employee views. HR manages people, devices, and app access. Employees see their own credentials and access status. Termination effects propagate to the Employee view in real time.
 
 ## Architecture
 
-The System follows a Producer-Consumer pattern using RabbitMQ as the message broker.
-
-- **Core:** Spring Boot 3.3 (Java 21)
-- **Database:** PostgreSQL 16 (Dockerized)
-- **Messaging:** RabbitMQ 3.13 (Dockerized)
-- **Testing:** JUnit 5 + Testcontainers
-
-### Event-Driven Workflow
-
 ```mermaid
 sequenceDiagram
-    participant Client as 👤 Client (Curl/UI)
-    participant API as ⚙️ Employee Service
-    participant DB as 🗄️ Database
-    participant MQ as 🐇 RabbitMQ
-    participant Listener as 👂 Termination Listener
-    participant Device as 💻 Device Service
-    participant App as 🔐 App Access Service
+    participant Client as Client (UI)
+    participant API as Employee Service
+    participant DB as PostgreSQL
+    participant MQ as RabbitMQ
+    participant Listener as Termination Listener
+    participant Device as Device Service
+    participant App as App Access Service
 
-    Note over Client, API: 1. The Trigger
-    Client->>API: POST /terminate (ID: 12)
-    API->>DB: UPDATE Employee SET status='TERMINATED'
-    API->>MQ: PUBLISH "hr.employee.terminated"
-    API-->>Client: 200 OK (Immediate Return)
+    Client->>API: POST /employees/{id}/terminate
+    API->>DB: SET status = TERMINATED
+    API->>MQ: PUBLISH hr.employee.terminated
+    API-->>Client: 200 OK
 
-    Note over MQ, App: 2. The Async Reaction
-    MQ->>Listener: CONSUME Message
-    
-    par Parallel Execution
-        Listener->>Device: lockDevices(12)
-        Device->>DB: UPDATE Device SET status='LOCKED'
-        
-        Listener->>App: revokeAccess(12)
-        App->>DB: UPDATE AppAccess SET status='REVOKED'
+    MQ->>Listener: CONSUME
+    par
+        Listener->>Device: lockDevices(id)
+        Device->>DB: SET isLocked = true
+        Listener->>App: revokeAccess(id)
+        App->>DB: SET status = REVOKED
     end
 ```
 
-## Key Features
-
-- **Recursive Workflow Engine:** A single termination event which would be done by HR would trigger a cascade of independent side effects.
-- **Device Management:** Automatically locks hardware (Laptops, Phones) upon employee termination.
-- **Identity Management:** Revokes access to third-party applications (Slack, Jira, Teams, Github) instantly.
-- **Transactional Integrity:** Utilizes Spring `@Transactional` to ensure data consistency across services.
+A single termination triggers independent side effects. The producer (EmployeeService) doesn't know or care about the consumers -- new reactions can be added without modifying existing code.
 
 ## Tech Stack
 
-- **Language:** Java 21 (Records, Pattern Matching)
-- **Framework:** Spring Boot 3 (Web, Data JPA, AMQP)
-- **Infrastructure:** Docker & Docker Compose
-- **Tools:** Lombok, Maven, Jackson
+**Backend:** Java 21, Spring Boot 3.3, Spring Data JPA, Spring AMQP, Lombok, Maven
+
+**Frontend:** React 18, TypeScript, Vite, React Router, TanStack React Query, Lucide Icons
+
+**Infrastructure:** PostgreSQL 16, RabbitMQ 3.13, Docker Compose
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Java 21** (required - Java 25+ is not compatible with Lombok)
+- Java 21
 - Docker Desktop
+- Node.js 18+
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/hive-engine.git
-   cd hive-engine
-   ```
-
-2. **Setup Java 21** (if not already configured)
-   
-   **macOS:**
-   ```bash
-   # Check if Java 21 is installed
-   /usr/libexec/java_home -V
-   
-   # If not installed:
-   brew install openjdk@21
-   
-   # Set JAVA_HOME for this session
-   export JAVA_HOME=$(/usr/libexec/java_home -v 21)
-   ```
-   
-   **Linux/Other:**
-   ```bash
-   # Install Java 21 and set JAVA_HOME
-   export JAVA_HOME=/path/to/java21
-   ```
-   
-   **Or run the setup script:**
-   ```bash
-   ./setup.sh
-   ```
-
-3. **Start Infrastructure (Postgres & RabbitMQ)**
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Run the Application**
-   ```bash
-   # Make sure JAVA_HOME is set to Java 21, then:
-   ./mvnw clean spring-boot:run
-   ```
-   
-   **Or use the helper script (automatically sets JAVA_HOME):**
-   ```bash
-   ./run.sh
-   ```
-
-## Manual Testing
-
-### 1. Create an Employee
+### 1. Clone and start infrastructure
 
 ```bash
+git clone https://github.com/carsonjc04/Hive-Engine.git
+cd Hive-Engine
+docker compose up -d
+```
+
+This starts PostgreSQL (port 5432) and RabbitMQ (port 5672, management UI at 15672).
+
+### 2. Start the backend
+
+```bash
+./run.sh
+```
+
+This sets `JAVA_HOME` to Java 21 and runs `mvnw spring-boot:run`. The API starts on `http://localhost:8080`.
+
+If you prefer to run manually:
+
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+./mvnw spring-boot:run
+```
+
+### 3. Start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. The dashboard starts in HR mode.
+
+## Usage
+
+### HR Dashboard
+
+- **People** -- Add employees, view their profiles, terminate them
+- **Devices** -- See all managed devices and their lock status
+- **Apps** -- See all application access records
+
+From an employee's detail page, assign devices and app access. Click **Terminate** to fire the event -- devices lock and apps revoke automatically.
+
+### Employee View
+
+Click **Switch to Employee View** in the sidebar and select an employee. This view shows:
+
+- **My Dashboard** -- Status overview, assigned apps and devices
+- **My Apps** -- Application access with mock credentials (passwords hidden behind a toggle)
+- **My Devices** -- Assigned hardware with status
+
+When HR terminates the employee, the Employee view updates within seconds -- apps show REVOKED, devices show LOCKED, and a termination banner appears.
+
+## API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/employees` | List all employees |
+| GET | `/api/employees/{id}` | Get employee by ID |
+| POST | `/api/employees` | Create employee |
+| POST | `/api/employees/{id}/terminate` | Terminate employee |
+| GET | `/api/devices` | List all devices |
+| GET | `/api/devices/employee/{id}` | Devices by employee |
+| POST | `/api/devices` | Assign device |
+| GET | `/api/app-access` | List all app access |
+| GET | `/api/app-access/employee/{id}` | App access by employee |
+| POST | `/api/app-access` | Grant app access |
+
+## Testing (curl)
+
+```bash
+# Create employee
 curl -X POST http://localhost:8080/api/employees \
   -H "Content-Type: application/json" \
-  -d '{"fullName": "Carson Test", "email": "carson@hive.com", "department": "Engineering"}'
-```
+  -d '{"fullName": "Jane Doe", "email": "jane@company.com", "department": "Engineering"}'
 
-### 2. Provision Resources (Devices & Apps)
-
-**Assign Laptop** (Replace `{id}` with the ID returned from step 1)
-
-```bash
+# Assign a device (replace 1 with employee ID)
 curl -X POST http://localhost:8080/api/devices \
   -H "Content-Type: application/json" \
-  -d '{"employeeId": {id}, "deviceType": "LAPTOP", "serialNumber": "MBP-2024"}'
-```
+  -d '{"employeeId": 1, "deviceType": "LAPTOP", "serialNumber": "SN-001"}'
 
-**Assign Slack Access**
-
-```bash
+# Grant app access
 curl -X POST http://localhost:8080/api/app-access \
   -H "Content-Type: application/json" \
-  -d '{"employeeId": {id}, "appName": "Slack", "role": "Developer"}'
+  -d '{"employeeId": 1, "appName": "Slack", "role": "Member"}'
+
+# Terminate -- locks device, revokes Slack
+curl -X POST http://localhost:8080/api/employees/1/terminate
 ```
 
-### 3. Trigger Termination
+## Project Structure
 
-This API call triggers the RabbitMQ event, which automatically locks the device and revokes app access.
-
-```bash
-curl -X POST http://localhost:8080/api/employees/{id}/terminate
 ```
+src/main/java/com/carsonchristensen/hive/
+├── config/          RabbitMQ + CORS configuration
+├── controller/      REST controllers (Employee, Device, AppAccess)
+├── event/           Event publishing (EmployeeEvent, EventPublisher)
+├── listener/        Event consumers (TerminationEventListener)
+├── model/           JPA entities and enums
+├── repository/      Spring Data repositories
+└── service/         Business logic
 
-## Testing & Verification
-
-### Running Commands
-
-The following example demonstrates the complete workflow: creating an employee, provisioning resources, and triggering termination.
-
-<img width="936" height="318" alt="Attached_image" src="https://github.com/user-attachments/assets/1062f24d-e493-4d4e-9b3e-591e27096eb8" />
-
-
-*Complete workflow showing device assignment, app access provisioning, and employee termination via curl commands.*
-
-### Event-Driven Execution Logs
-
-When an employee is terminated, the system automatically processes the event asynchronously. The logs show both services executing in parallel:
-
-<img width="949" height="572" alt="Attached_image" src="https://github.com/user-attachments/assets/40d9a30b-adeb-4409-8026-c797375a9c6d" />
-
-
-*Application logs showing the parallel execution of device locking and app access revocation services triggered by the termination event.*
+frontend/src/
+├── api/             Typed API client
+├── components/      Layout, EmployeePicker
+├── context/         Role switching context
+├── hooks/           Toast notifications
+└── pages/           Dashboard, People, Devices, Apps, Employee views
+```
